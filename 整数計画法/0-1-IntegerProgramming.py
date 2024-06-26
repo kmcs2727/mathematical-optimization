@@ -91,16 +91,22 @@ def IntegerProgrammingSolve(capacity, items, costs, weights):
             if p.ub > opt_val:
                 opt_val = p.ub
                 opt_ans = p.xub
-        if p.ub > best.lb:
-            if p.lb > best.lb:
-                best = p
-            if p.ub > p.lb and p.bi is not None:
-                k = p.bi
-                p1 = IntegerProgramming(p.name+'+'+str(k), capacity=p.capacity, items=p.items, costs=p.costs, weights=p.weights, zeros=p.zeros, ones=p.ones.union({k}))
-                queue.append(p1)
-                p2 = IntegerProgramming(p.name+'-'+str(k), capacity=p.capacity, items=p.items, costs=p.costs, weights=p.weights, zeros=p.zeros.union({k}), ones=p.ones)
-                queue.append(p2)
-    return "Optimal", opt_val, opt_ans
+        else:
+            if p.ub > max(best.lb,opt_val):
+                if p.lb > best.lb:
+                    best = p
+                if p.ub > p.lb and p.bi:
+                    k = p.bi
+                    p1 = IntegerProgramming(p.name + '+' + str(k), capacity=p.capacity, items=p.items, costs=p.costs,
+                                            weights=p.weights, zeros=p.zeros, ones=p.ones.union({k}))
+                    queue.append(p1)
+                    p2 = IntegerProgramming(p.name + '-' + str(k), capacity=p.capacity, items=p.items, costs=p.costs,
+                                            weights=p.weights, zeros=p.zeros.union({k}), ones=p.ones)
+                    queue.append(p2)
+    if opt_val > best.lb:
+        return "Optimal", opt_val, opt_ans
+    else:
+        return "Optimal", best.lb, best.xlb
 
 print("テストケース文をそのまま貼り付けてください")
 N, M, opt = map(float, input().split())
